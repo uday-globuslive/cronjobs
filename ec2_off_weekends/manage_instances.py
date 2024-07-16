@@ -1,6 +1,7 @@
 import boto3
 import yaml
 import sys
+from botocore.exceptions import ClientError
 
 def get_instance_ids(ec2_client, config):
     instances = set()
@@ -22,7 +23,8 @@ def get_instance_ids(ec2_client, config):
     for tag in config.get('tags', []):
         response = ec2_client.describe_instances(
             Filters=[
-                {'Name': f'tag:{tag}', 'Values': ['*']}
+                {'Name': f'tag:{tag}', 'Values': ['*']},
+                {'Name': 'instance-state-name', 'Values': ['running', 'stopped']}
             ]
         )
         for reservation in response['Reservations']:
@@ -48,16 +50,24 @@ def start_stop_instances(action, config_file):
 
     instance_ids = get_instance_ids(ec2_client, config)
 
-    if action == 'start':
-        response = ec2_client.start_instances(InstanceIds=instance_ids)
-    elif action == 'stop':
-        response = ec2_client.stop_instances(InstanceIds=instance_ids)
-    else:
-        print(f"Error: Invalid action '{action}'. Supported actions: 'start', 'stop'.")
-        return
-
     for instance_id in instance_ids:
-        print(f"{action.capitalize()}ing instance {instance_id}")
+        try:
+            if action == 'start':
+                response = ec2_client.start_instances(InstanceIds=[instance_id])
+                print(f"Starting instance {instance_id}")
+            elif action == 'stop':
+                response = ec2_client.stop_instances(InstanceIds=[instance_id])
+                print(f"Stopping instance {instance_id}")
+            else:
+                print(f"Error: Invalid action '{action}'. Supported actions: 'start', 'stop'.")
+                return
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'InvalidInstanceID.NotFound':
+                print(f"Instance {instance_id} not found. Skipping.")
+            elif e.response['Error']['Code'] == 'InvalidInstanceID.Malformed':
+                print(f"Instance ID {instance_id} is malformed. Skipping.")
+            else:
+                print(f"Error {action}ing instance {instance_id}: {e}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
