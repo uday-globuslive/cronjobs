@@ -5,6 +5,8 @@ from botocore.exceptions import ClientError
 
 def get_instance_ids(ec2_client, config):
     instances = set()
+    found_names = set()
+    found_tags = set()
 
     # Fetch instances by IDs directly
     instances.update(config.get('instance_ids', []))
@@ -14,10 +16,16 @@ def get_instance_ids(ec2_client, config):
         response = ec2_client.describe_instances(
             Filters=[{'Name': 'tag:Name', 'Values': [name]}]
         )
+        if response['Reservations']:
+            found_names.add(name)
         for reservation in response['Reservations']:
             for instance in reservation['Instances']:
                 instances.add(instance['InstanceId'])
                 print(f"Found instance {instance['InstanceId']} with name {name}")
+
+    for name in config.get('instance_names', []):
+        if name not in found_names:
+            print(f"No instances found with name {name}")
 
     # Fetch instances by tags
     for tag in config.get('tags', []):
@@ -27,10 +35,16 @@ def get_instance_ids(ec2_client, config):
                 {'Name': 'instance-state-name', 'Values': ['running', 'stopped']}
             ]
         )
+        if response['Reservations']:
+            found_tags.add(tag)
         for reservation in response['Reservations']:
             for instance in reservation['Instances']:
                 instances.add(instance['InstanceId'])
                 print(f"Found instance {instance['InstanceId']} with tag {tag}")
+
+    for tag in config.get('tags', []):
+        if tag not in found_tags:
+            print(f"No instances found with tag {tag}")
 
     return list(instances)
 

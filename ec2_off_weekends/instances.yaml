@@ -9,7 +9,6 @@ instance_names:
   - instance0
   - instance1
   - instance2
-  - instance3
 instance_ids:
   - i-0a62b7c5db6a93667
   - i-0a62b7c5db6a93668
