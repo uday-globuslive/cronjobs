@@ -2,7 +2,8 @@
 region: us-west-1  # Optional, default region will be used if not specified
 profile: User  # Optional, default profile will be used if not specified
 tags:
-  - should_on
+  - should_off_weekends
+  - dummy
 instance_names:
   - instance1
   - instance2
