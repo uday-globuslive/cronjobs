@@ -1,0 +1,12 @@
+# instances.yaml
+region: us-west-1  # Optional, default region will be used if not specified
+profile: default  # Optional, default profile will be used if not specified
+tags:
+  - should_on
+instance_names:
+  - instance1
+  - instance2
+  - instance3
+instance_ids:
+  - i-0a62b7c5db6a93668
+  - i-098ee5789fe7f3d7e
