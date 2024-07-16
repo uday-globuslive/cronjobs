@@ -30,20 +30,26 @@ Create Shell Scripts for Cron Jobs:
 ```
 #!/bin/bash
 source /home/vmadmin/myenv/bin/activate
-/home/vmadmin/myenv/bin/python /home/vmadmin/manage_instances.py start /home/vmadmin/instances.yaml
+/home/vmadmin/myenv/bin/python /home/vmadmin/manage_instances.py start /home/vmadmin/instances.yaml >> /home/vmadmin/start_instances.log 2>&1
 ```
 
 - Stop Instances (stop_instances.sh):
 ```
 #!/bin/bash
 source /home/vmadmin/myenv/bin/activate
-/home/vmadmin/myenv/bin/python /home/vmadmin/manage_instances.py stop /home/vmadmin/instances.yaml
+/home/vmadmin/myenv/bin/python /home/vmadmin/manage_instances.py stop /home/vmadmin/instances.yaml >> /home/vmadmin/stop_instances.log 2>&1
 ```
 
 - Make both scripts executable:
 ```
 chmod +x /home/vmadmin/start_instances.sh
 chmod +x /home/vmadmin/stop_instances.sh
+```
+
+- Check the log files after the cron job is scheduled to run to see if there is any output indicating success or failure.
+```
+cat /home/vmadmin/start_instances.log
+cat /home/vmadmin/stop_instances.log
 ```
 
 - Create Cron Jobs: Open the cron job configuration for the vmadmin user:
