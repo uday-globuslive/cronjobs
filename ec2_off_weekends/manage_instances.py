@@ -22,7 +22,7 @@ def get_instance_ids(ec2_client, config):
     for tag in config.get('tags', []):
         response = ec2_client.describe_instances(
             Filters=[
-                {'Name': 'tag:should_off', 'Values': ["weekends"]},
+                {'Name': f'tag:{tag}', 'Values': ['*']}
             ]
         )
         for reservation in response['Reservations']:
