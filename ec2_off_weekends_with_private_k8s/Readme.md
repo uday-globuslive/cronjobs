@@ -1,10 +1,8 @@
-## This README now includes instructions for setting up cron jobs that stop instances on Friday night at 11:59 PM and start them on Monday morning at 8 AM.
-## Along with above step, it does kuerbernetes nodes draining before stopping the instances.
-
-## Previous script works if kubectl configured on the same machine where the cron job runs.
-## If kuebrnetes cluster is in one vpc and my ec2 instance from where this python file is running is in another vpc. Now, kubectl commands won't run directly.
-
-To run kubectl commands from your Python script when the Kubernetes cluster and the script are in different VPCs, you can use a few approaches. Here is a step-by-step guide on how to set this up:
+- This README now includes instructions for setting up cron jobs that stop instances on Friday night at 11:59 PM and start them on Monday morning at 8 AM.
+- Along with above step, it does kuerbernetes nodes draining before stopping the instances.
+- Previous script works if kubectl configured on the same machine where the cron job runs.
+- If kuebrnetes cluster is in one vpc and my ec2 instance from where this python file is running is in another vpc. Now, kubectl commands won't run directly.
+- To run kubectl commands from your Python script when the Kubernetes cluster and the script are in different VPCs, you can use a few approaches. Here is a step-by-step guide on how to set this up:
 
 ### Approach we follow: SSH into the Jumpbox and Run Commands
 - Set Up VPC Peering: Ensure the VPCs are peered and the appropriate routes and security groups are configured to allow traffic between them.
