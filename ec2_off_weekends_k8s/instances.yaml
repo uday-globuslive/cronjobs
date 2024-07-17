@@ -1,0 +1,9 @@
+# instances.yaml
+region: us-west-1  # Optional, default region will be used if not specified
+profile: User  # Optional, default profile will be used if not specified
+tags:
+  - should_off_weekends
+instance_names:
+  - dev-kubernetes-2
+instance_ids:
+  - i-0b997f537d368415f
