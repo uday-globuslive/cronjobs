@@ -1,76 +1,53 @@
- For your EC2 instance with a g5.2xlarge size and 450GB storage, there are a few options to achieve your goals. Let's explore both scenarios:
+Assumptions:
+- EC2 instance: g5.2xlarge ($1.212 per hour)
+- EBS volume: 450 GB gp2 ($0.08 per GB-month)
+- Weekend period: 60 hours (Friday evening to Monday morning)
+- 4 weekends per month
+- AMI creation cost: $0.01 per GB
 
-Option 1: Backup, Terminate, and Restore
+Corrected Calculation:
 
-1. Use Amazon Data Lifecycle Manager (DLM) or AWS Backup to create automated EBS snapshots of your instance's volumes.
-2. Use AWS Lambda functions triggered by CloudWatch Events to:
-   - Create a final snapshot on Friday evening
-   - Terminate the instance
-   - Restore the instance from the snapshot on Monday morning
+Option 1: Create AMI, Terminate, and Restore
 
-Case A: AMI saved in the same region
-Costs:
-1. EBS Snapshots: $0.05 per GB-month
-   450 GB * $0.05 = $22.50 per month
-2. AMI storage: $0.01 per GB-month for AMI storage
-   450 GB * $0.01 = $4.50 per month
-3. Lambda: Free tier (assumed)
-4. CloudWatch Events: No additional cost
+Savings per weekend:
+EC2 instance savings: 60 hours * $1.212 = $72.72
 
-Total additional costs: $27 per month
+Costs per weekend:
+AMI creation cost: 450 GB * $0.01 = $4.50
 
-Savings:
-EC2 instance savings: $290.88 per month (as calculated before)
-Net monthly savings: $290.88 - $27 = $263.88
+Net savings per weekend: $72.72 - $4.50 = $68.22
 
-Case B: AMI saved in a different region
-
-Costs:
-1. EBS Snapshots: $0.05 per GB-month
-   450 GB * $0.05 = $22.50 per month
-2. AMI storage: $0.01 per GB-month for AMI storage
-   450 GB * $0.01 = $4.50 per month
-3. Data transfer out to a different region: $0.02 per GB
-   450 GB * $0.02 = $9 per transfer (assuming one transfer per week)
-   $9 * 4 weeks = $36 per month
-4. Lambda: Free tier (assumed)
-5. CloudWatch Events: No additional cost
-
-Total additional costs: $63 per month
-
-Savings:
-EC2 instance savings: $290.88 per month (as calculated before)
-Net monthly savings: $290.88 - $63 = $227.88
+Net savings per month (4 weekends): $68.22 * 4 = $272.88
 
 Option 2: Stop and Start
 
-Use AWS Lambda functions triggered by CloudWatch Events to:
-- Stop the instance on Friday evening
-- Start the instance on Monday morning
+Savings per weekend:
+EC2 instance savings: 60 hours * $1.212 = $72.72
 
-Costs:
-- EBS volume: You'll still be charged for the EBS volume when the instance is stopped ($0.08 per GB-month for gp2)
-- Lambda: Free tier includes 1M free requests per month and 400,000 GB-seconds of compute time per month
-- CloudWatch Events: No additional cost
+Costs per weekend:
+EBS volume cost (still charged when stopped): 
+(450 GB * $0.08 * 60/720) = $3.00
 
-Savings:
-You'll save on EC2 instance costs for about 2.5 days per week (60 hours), but still pay for EBS.
-Weekly savings: 60 * $1.212 = $72.72
-Monthly savings (approximated): $290.88
-Minus EBS costs: 450 * $0.08 * (2.5/30) = $3 per week or $12 per month
-Net monthly savings: $278.88
+Net savings per weekend: $72.72 - $3.00 = $69.72
+
+Net savings per month (4 weekends): $69.72 * 4 = $278.88
 
 Comparison:
 
-1. Backup and Terminate:
-   Pros: Maximum cost savings, no ongoing EBS charges when terminated
-   Cons: Longer start-up time on Monday, potential data loss if snapshot fails
+1. Create AMI, Terminate, and Restore:
+   Net savings per week: $68.22
+   Net savings per month: $272.88
 
 2. Stop and Start:
-   Pros: Faster start-up time, lower risk of data loss
-   Cons: Slightly lower savings due to ongoing EBS charges
+   Net savings per week: $69.72
+   Net savings per month: $278.88
 
-Both options provide significant savings. The backup and terminate option offers maximum savings but with a slightly higher complexity and longer start-up time. The stop and start option is simpler and faster to resume but has slightly lower savings.
+Difference in savings:
+Per week: $69.72 - $68.22 = $1.50 in favor of Option 2
+Per month: $278.88 - $272.88 = $6.00 in favor of Option 2
 
-To implement either option, you can use AWS CloudFormation or Terraform to create the necessary resources (Lambda functions, CloudWatch Events, IAM roles) in an automated and reproducible way
+In this fully corrected calculation, Option 2 (Stop and Start) saves $1.50 more per week or $6.00 more per month compared to Option 1 (Create AMI, Terminate, and Restore). 
 
+The main factors are:
+- Option 1 incurs AMI creation costs but saves on EBS volume costs during weekends.
+- Option 2 continues to incur EBS volume costs during weekends but avoids AMI creation costs.
