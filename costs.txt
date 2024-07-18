@@ -1,0 +1,76 @@
+ For your EC2 instance with a g5.2xlarge size and 450GB storage, there are a few options to achieve your goals. Let's explore both scenarios:
+
+Option 1: Backup, Terminate, and Restore
+
+1. Use Amazon Data Lifecycle Manager (DLM) or AWS Backup to create automated EBS snapshots of your instance's volumes.
+2. Use AWS Lambda functions triggered by CloudWatch Events to:
+   - Create a final snapshot on Friday evening
+   - Terminate the instance
+   - Restore the instance from the snapshot on Monday morning
+
+Case A: AMI saved in the same region
+Costs:
+1. EBS Snapshots: $0.05 per GB-month
+   450 GB * $0.05 = $22.50 per month
+2. AMI storage: $0.01 per GB-month for AMI storage
+   450 GB * $0.01 = $4.50 per month
+3. Lambda: Free tier (assumed)
+4. CloudWatch Events: No additional cost
+
+Total additional costs: $27 per month
+
+Savings:
+EC2 instance savings: $290.88 per month (as calculated before)
+Net monthly savings: $290.88 - $27 = $263.88
+
+Case B: AMI saved in a different region
+
+Costs:
+1. EBS Snapshots: $0.05 per GB-month
+   450 GB * $0.05 = $22.50 per month
+2. AMI storage: $0.01 per GB-month for AMI storage
+   450 GB * $0.01 = $4.50 per month
+3. Data transfer out to a different region: $0.02 per GB
+   450 GB * $0.02 = $9 per transfer (assuming one transfer per week)
+   $9 * 4 weeks = $36 per month
+4. Lambda: Free tier (assumed)
+5. CloudWatch Events: No additional cost
+
+Total additional costs: $63 per month
+
+Savings:
+EC2 instance savings: $290.88 per month (as calculated before)
+Net monthly savings: $290.88 - $63 = $227.88
+
+Option 2: Stop and Start
+
+Use AWS Lambda functions triggered by CloudWatch Events to:
+- Stop the instance on Friday evening
+- Start the instance on Monday morning
+
+Costs:
+- EBS volume: You'll still be charged for the EBS volume when the instance is stopped ($0.08 per GB-month for gp2)
+- Lambda: Free tier includes 1M free requests per month and 400,000 GB-seconds of compute time per month
+- CloudWatch Events: No additional cost
+
+Savings:
+You'll save on EC2 instance costs for about 2.5 days per week (60 hours), but still pay for EBS.
+Weekly savings: 60 * $1.212 = $72.72
+Monthly savings (approximated): $290.88
+Minus EBS costs: 450 * $0.08 * (2.5/30) = $3 per week or $12 per month
+Net monthly savings: $278.88
+
+Comparison:
+
+1. Backup and Terminate:
+   Pros: Maximum cost savings, no ongoing EBS charges when terminated
+   Cons: Longer start-up time on Monday, potential data loss if snapshot fails
+
+2. Stop and Start:
+   Pros: Faster start-up time, lower risk of data loss
+   Cons: Slightly lower savings due to ongoing EBS charges
+
+Both options provide significant savings. The backup and terminate option offers maximum savings but with a slightly higher complexity and longer start-up time. The stop and start option is simpler and faster to resume but has slightly lower savings.
+
+To implement either option, you can use AWS CloudFormation or Terraform to create the necessary resources (Lambda functions, CloudWatch Events, IAM roles) in an automated and reproducible way
+
