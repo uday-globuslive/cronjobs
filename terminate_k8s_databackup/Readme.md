@@ -1,3 +1,5 @@
+# Automating Kubernetes Node Replacement: Backup, Termination, and Restoration with EC2 and Python
+
 Here's a Python script that does below steps:
 
 - Automates the entire process of creating backups, draining the Kubernetes node, terminating the instance, restoring data on a new instance, and joining the new node to the Kubernetes cluster. 
