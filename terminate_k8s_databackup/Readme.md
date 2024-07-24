@@ -102,4 +102,12 @@ Notes:
 Ensure that the SSH keys are correctly configured and accessible.
 - Modify paths and other configuration settings as per your setup.
 
-This script will automate the entire process, making it easier to manage your Kubernetes node and backup/restore operations.
+Key Points:
+- Instance Identification: The get_instance_id function retrieves the instance ID using tags. Ensure that your instances are tagged appropriately.
+- Backup Creation: The create_backup function SSHs into the old instance to create and transfer the backup.
+- Node Draining: The drain_node function uses kubectl drain to prepare the node for termination.
+- Termination and New Instance Creation: The terminate_instance and create_new_instance_and_volume functions manage instance and volume lifecycle.
+- Backup Restoration: The restore_backup function restores the backup onto the new instance.
+- Joining Kubernetes Cluster: The join_kubernetes_cluster function adds the new instance to the Kubernetes cluster.
+
+This script automates the entire workflow, making it easy to replace and manage your Kubernetes nodes.
